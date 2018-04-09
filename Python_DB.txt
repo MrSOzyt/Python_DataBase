@@ -1,0 +1,170 @@
+Python操作MySQL
+1、导入MySQLdb数据库模块
+pip install MySQL-python
+安装成功后
+import MySQLdb
+
+2、打开数据库
+con=MySQLdb.connect(host=’ ’,user=’ ‘,passwd=’ ‘,db=’ ‘,port#端口=3306,charset=’utf8’)
+
+3、建表
+cur.execute(‘CREATE TABLE person (id int not null auto_increment primary key,name varchar(20) age int)’)
+
+4、插入数据
+cur.executemany(‘INSERT INTO person(name,age) VALUES (%s,%s)’,[(‘marry’,20),(‘jack’,20)])
+之后使用数据库对象con进行提交操作
+con.commit()
+若出现错误，使用回滚操作
+con.rollback()
+
+5、查询数据
+查询person表中所有数据
+cur.execute(‘SELECT * FROM person’)
+
+fetchone()和fetchall()
+fetchall()获得所有数据，返回一个二维列表
+fetchone（）获得其中一个结果，返回一个元组
+
+cur.exexcute(‘SELECT *FROM person’)
+res=cur.fetchall()
+for lines in res:
+print(line)
+cur.xexcute(‘SELECT * FROM person’)
+res=cur.fetchone()
+print(res)
+
+6、修改删除
+cur.execute(‘UPDATE person SET name=%s WHERE id=%s’,(‘rose’,1))
+cur.execute(‘DELETE FROM person WHERE id=%s’,(0,))
+con.commit()
+con.close()
+
+
+
+
+NoSQL数据库MongoDB
+
+SQL概念           MongoDB概念        说明
+database              database                数据库
+table                 collection                数据库表/集合
+row                  document                数据行/文档
+colum                field                     数据字段列/域
+index                 index                    索引
+primary key           primary                   主键，MongoDB自动将_id设为主键
+
+1、文档、集合、数据库的概念
+文档：是MongoDB中数据的基本单元，类似关系数据库中的行。文档以key/value的方式，如｛“name”：“”，“age”：“”｝
+#文档区分大小写和值的类型
+#文档的键值对是有序的，顺序不同文档不同
+#文档的键是用双引号标识的字符串
+
+集合：是一组文档，类似关系数据库的表。没有固定结构，可以插入不同格式和类型的数据。
+#集合名不能是空字符串
+#集合名不能含有“/0”（即空字符），这个字符表示集合名的结尾
+#集合名不能以“system.”开头
+#不能含有保留字符
+
+2、命令行中的操作
+数据库
+创建：use DATABASE_NAME
+#show dbs可以显示所有的数据库
+删除：db.dropDatabase()    #删除当前数据库
+
+集合
+插入文档。 insert（）或save（），语法如下：
+db.COLLECTION_NAME.insert(document)
+示例：
+>db.python.insert({title:’python’,
+description:’动态语言’，
+...
+｝）
+查询文档。find（）  
+db.COLLECTION_NAME.find()    #查找所有文档
+db.python.find({“likes”:100}).pretty)         #从pytho集合中找到likes=100的文档
+db.python.find({“likes”:{＄lt:100}}).pretty)    #从pytho集合中找到likes小于100的文档
+db.python.find({“likes”:{＄lte:100}}).pretty)    #从pytho集合中找到likes≤100的文档
+db.python.find({“likes”:{＄gt:100}}).pretty)    #从pytho集合中找到likes大于100的文档
+db.python.find({“likes”:{＄gte:100}}).pretty)    #从pytho集合中找到likes≥100的文档
+db.python.find({“likes”:{＄ne:100}}).pretty)   #从pytho集合中找到likes不等于100的文档
+
+更新文档。update（）和save（）
+db.collection.update(
+query,
+update,
+{
+upsert:boolean
+multi:boolean
+writeConcern:document
+}
+)
+#query:update的查询条件，类似where
+#update：update的对象和一些更新的操作符等，类似于set后面的内容
+#upsert：可选，如果不存在update的记录，是否插入新的文档，true和false
+#multi: 可选，默认是false，只更新找到的第一条记录，如果这个参数为true，就把按条件查出来的多条记录全部更新
+#writeConcern：可选，抛出异常的级别
+
+save（）方法通过传入的文档来替换已有文档
+
+删除文档。remove（）
+db.collection.remove(
+query,
+{
+justone:boolean,
+writeConcern:document
+｝
+）
+#justone：可选，如果设为true或1，则只删除一个文档
+#如果没有query条件，则删除所有文档
+
+
+
+Python操作MongoDB
+
+1、建立连接
+pymongo模块使用MongoClient对象描述一个数据库客户端，创建对象需要host和port
+常见的有三种形式：
+#client=pymongo.MongoClient()
+#client=pymongo.MongoClient(‘localhost’,123)
+#client=pymongo.MongoClient(‘mongodb://localhost:123’)
+第一种方式是连接默认的主机IP和端口，第二种是显示指定，第三种通过URL格式连接
+
+2、获取数据库
+db=client.papers
+
+3、获取一个集合
+collection=db.books
+or
+collection=db[‘books’]
+
+4、插入文档
+book={‘’ ‘’:’’ ‘’,
+‘’ ‘’:’’ ’’
+}
+book_id=collection.insert(book)
+
+5、查询文档
+单条数据 collection.find_one({‘’ ‘’:’’ ‘’ })
+多条数据 
+for book in collection.find({‘’ ‘’ :’’ ‘’}):
+print(book)
+
+6、修改文档
+update()和save()
+collection.update({‘’’’:’’ ‘’},{‘’＄set:{‘’ ‘’:’’ ‘’}})
+
+7、删除文档
+collection.remove({‘’ ‘’:’’ ‘’})
+
+
+
+
+Scrapy
+爬取之前需要先创建一个新的项目
+切换路径
+Scrapy startproject xxx
+
+选择器selector
+1）xpath（query）：传入XPath表达式query，返回对应的所有节点的selector list
+2）Css（query）：传入css
+3）Extract（）：序列化该节点为Unicode字符并返回list
+4）re（regex）：regex可以是正则表达式，也可以是re.compile（）的字符串
